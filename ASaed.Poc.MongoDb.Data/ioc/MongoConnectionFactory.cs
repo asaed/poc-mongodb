@@ -7,12 +7,12 @@ namespace ASaed.Poc.MongoDb.Data.ioc
         public static MongoDatabase GetMongoDatabase()
         {
             var mongoClientSettings = new MongoClientSettings();
-            mongoClientSettings.Credentials = new[] { MongoCredential.CreateCredential("admin", "poc_csharp", "password") };
-            mongoClientSettings.Server = new MongoServerAddress("localhost", 27017);
+            mongoClientSettings.Credentials = new[] { MongoCredential.CreateCredential(AppSettings.MongoDbCredentialDb, AppSettings.MongoDbCredentialUserName, AppSettings.MongoDbCredentialPassword) };
+            mongoClientSettings.Server = new MongoServerAddress(AppSettings.MongoDbHostName, AppSettings.MongoDbHostPort);
 
             var mongoClient = new MongoClient(mongoClientSettings);
 
-            return mongoClient.GetServer().GetDatabase("db-poc");
+            return mongoClient.GetServer().GetDatabase(AppSettings.MongoDbDatabaseName);
         }
     }
 }
