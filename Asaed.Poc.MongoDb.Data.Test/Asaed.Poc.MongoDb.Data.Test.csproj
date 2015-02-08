@@ -80,6 +80,7 @@
     <Compile Include="AppSettingsTest.cs" />
     <Compile Include="ioc\MongoConnectionFactoryTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\BookRepositoryTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
