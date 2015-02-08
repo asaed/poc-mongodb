@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ASaed.Poc.MongoDb.Data.Model;
-using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
@@ -23,7 +22,6 @@ namespace ASaed.Poc.MongoDb.Data.Repository
     {
         private readonly MongoDatabase _mongoDatabase;
         private readonly MongoCollection<Book> _mongoCollection;
-        private QueryDocument _queryDocument;
 
         public BookRepository(MongoDatabase mongoDatabase)
         {
