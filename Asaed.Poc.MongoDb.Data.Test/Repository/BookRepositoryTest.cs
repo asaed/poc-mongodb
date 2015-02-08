@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using ASaed.Poc.MongoDb.Data.ioc;
 using ASaed.Poc.MongoDb.Data.Model;
 using ASaed.Poc.MongoDb.Data.Repository;
@@ -164,5 +165,26 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
             Assert.AreEqual(expectedBook2.Isbn, foundBook.Isbn);
         }
 
+        [Test]
+        public void IgnoreExtraElementsFoundInMongo()
+        {
+            var bsonDocument = new BsonDocument()
+            {
+                
+            };
+            bsonDocument["elementNotFoundInBook"] = "elementValue";
+            bsonDocument["author"] = Author;
+            _plainCollection.Insert(bsonDocument);
+
+            var books = _repository.FindByAuthor(Author).ToList();
+
+            Assert.AreEqual(1, books.Count);
+            var actualBook = books[0];
+
+            Assert.AreEqual(Author, actualBook.Author);
+            Assert.IsNull(actualBook.Title);
+            Assert.IsNull(actualBook.Publisher);
+            Assert.IsNull(actualBook.Isbn);
+        }
     }
 }
