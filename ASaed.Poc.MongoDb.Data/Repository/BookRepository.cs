@@ -11,6 +11,8 @@ namespace ASaed.Poc.MongoDb.Data.Repository
     public interface IBookRepository
     {
         void Add(Book book);
+        void Add(List<Book> books);
+        IEnumerable<Book> FindAll();
         IEnumerable<Book> FindByTitle(string title);
         IEnumerable<Book> FindByAuthor(string author);
         void Delete(Book book);
@@ -32,6 +34,16 @@ namespace ASaed.Poc.MongoDb.Data.Repository
         public void Add(Book book)
         {
             _mongoCollection.Insert(book);
+        }
+
+        public void Add(List<Book> books)
+        {
+            books.ForEach(Add);
+        }
+
+        public IEnumerable<Book> FindAll()
+        {
+            return _mongoCollection.FindAll();
         }
 
         public IEnumerable<Book> FindByTitle(string title)

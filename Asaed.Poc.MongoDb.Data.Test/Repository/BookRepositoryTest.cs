@@ -207,5 +207,17 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
             Assert.AreEqual(Publisher, modifiedBook.Publisher);
             Assert.AreEqual(Title1, modifiedBook.Title);
         }
+
+        [Test]
+        public void ShouldRetrieveAllBooks()
+        {
+            _repository.Add(new List<Book>{_expectedBook, _differentBook});
+
+            var findAll = _repository.FindAll().ToList();
+
+            Assert.AreEqual(2, findAll.Count);
+            Assert.IsNotNull(findAll.Single(x => x.Author == _expectedBook.Author));
+            Assert.IsNotNull(findAll.Single(x => x.Author == _differentBook.Author));
+        }
     }
 }
