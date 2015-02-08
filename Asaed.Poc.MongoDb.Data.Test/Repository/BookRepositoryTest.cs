@@ -18,14 +18,33 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
         private const string Title2 = "Second Best Mongodb Starter";
         private const string Publisher = "Greatest Publisher";
         private const string Isbn = "12254-444447";
-        private IBookRepository _repository;
+        private Book _expectedBook;
         private MongoDatabase _mongoDatabase;
         private MongoCollection<BsonDocument> _plainCollection;
         private MongoCollection<Book> _bookCollection;
+        private IBookRepository _repository;
+        private Book _differentBook;
 
         [SetUp]
         public void Setup()
         {
+
+            _expectedBook = new Book
+            {
+                Author = Author,
+                Title = Title1,
+                Publisher = Publisher,
+                Isbn = Isbn
+            };
+
+            _differentBook = new Book
+            {
+                Author = Author + " Different",
+                Title = Title1 + "Different",
+                Publisher = Publisher + "Different",
+                Isbn = Isbn + "Different",
+            };
+
             _mongoDatabase = MongoConnectionFactory.GetMongoDatabase();
             _plainCollection = _mongoDatabase.GetCollection("books");
             _bookCollection = _mongoDatabase.GetCollection<Book>("books");
@@ -38,15 +57,7 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
         [Test]
         public void SaveShouldUseCustomPropertyMapping()
         {
-            var newBook = new Book
-            {
-                Author = Author,
-                Title = Title1,
-                Publisher = Publisher,
-                Isbn = Isbn
-            };
-
-            _repository.Add(newBook);
+            _repository.Add(_expectedBook);
 
             
             var asQueryable = _plainCollection.AsQueryable();
@@ -84,48 +95,26 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
         [Test]
         public void FindBooksByTitle()
         {
-            var expectedBook = new Book
-            {
-                Author = Author,
-                Title = Title1,
-                Publisher = Publisher,
-                Isbn = Isbn
-            };
+            
 
-            var differentBook = new Book
-            {
-                Author = Author,
-                Title = Title1 + " Different",
-                Publisher = Publisher,
-                Isbn = Isbn
-            };
-
-            _repository.Add(expectedBook);
-            _repository.Add(differentBook);
+            _repository.Add(_expectedBook);
+            _repository.Add(_differentBook);
 
             var books = _repository.FindByTitle(Title1).ToList();
 
             Assert.AreEqual(1, books.Count);
             var foundBook = books[0];
 
-            Assert.AreNotSame(expectedBook, foundBook);
-            Assert.AreEqual(expectedBook.Author, foundBook.Author);
-            Assert.AreEqual(expectedBook.Title, foundBook.Title);
-            Assert.AreEqual(expectedBook.Publisher, foundBook.Publisher);
-            Assert.AreEqual(expectedBook.Isbn, foundBook.Isbn);
+            Assert.AreNotSame(_expectedBook, foundBook);
+            Assert.AreEqual(_expectedBook.Author, foundBook.Author);
+            Assert.AreEqual(_expectedBook.Title, foundBook.Title);
+            Assert.AreEqual(_expectedBook.Publisher, foundBook.Publisher);
+            Assert.AreEqual(_expectedBook.Isbn, foundBook.Isbn);
         }
 
         [Test]
         public void FindBooksByAuthor()
         {
-            var expectedBook1 = new Book
-            {
-                Author = Author,
-                Title = Title1,
-                Publisher = Publisher,
-                Isbn = Isbn
-            };
-
             var expectedBook2 = new Book
             {
                 Author = Author,
@@ -133,28 +122,20 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
                 Publisher = Publisher,
             };
 
-            var differentBook = new Book
-            {
-                Author = Author + " Different",
-                Title = Title1 + "Different",
-                Publisher = Publisher + "Different",
-                Isbn = Isbn + "Different",
-            };
-
             _repository.Add(expectedBook2);
-            _repository.Add(differentBook);
-            _repository.Add(expectedBook1);
+            _repository.Add(_differentBook);
+            _repository.Add(_expectedBook);
 
             var books = _repository.FindByAuthor(Author).OrderBy(x=>x.Title).ToList();
 
             Assert.AreEqual(2, books.Count);
             var foundBook = books[0];
 
-            Assert.AreNotSame(expectedBook1, foundBook);
-            Assert.AreEqual(expectedBook1.Author, foundBook.Author);
-            Assert.AreEqual(expectedBook1.Title, foundBook.Title);
-            Assert.AreEqual(expectedBook1.Publisher, foundBook.Publisher);
-            Assert.AreEqual(expectedBook1.Isbn, foundBook.Isbn);
+            Assert.AreNotSame(_expectedBook, foundBook);
+            Assert.AreEqual(_expectedBook.Author, foundBook.Author);
+            Assert.AreEqual(_expectedBook.Title, foundBook.Title);
+            Assert.AreEqual(_expectedBook.Publisher, foundBook.Publisher);
+            Assert.AreEqual(_expectedBook.Isbn, foundBook.Isbn);
             
             foundBook = books[1];
 
@@ -185,6 +166,25 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
             Assert.IsNull(actualBook.Title);
             Assert.IsNull(actualBook.Publisher);
             Assert.IsNull(actualBook.Isbn);
+        }
+
+        [Test]
+        public void DeleteById()
+        {
+            _repository.Add(_expectedBook);
+            _repository.Add(_differentBook);
+
+            _repository.Delete(_expectedBook);
+
+            var asQueryable = _bookCollection.AsQueryable();
+            Assert.AreEqual(1, asQueryable.Count());
+            var actual = asQueryable.First();
+
+            Assert.AreNotSame(_differentBook, actual);
+            Assert.AreEqual(_differentBook.Author, actual.Author);
+            Assert.AreEqual(_differentBook.Title, actual.Title);
+            Assert.AreEqual(_differentBook.Publisher, actual.Publisher);
+            Assert.AreEqual(_differentBook.Isbn, actual.Isbn);
         }
     }
 }
