@@ -24,7 +24,7 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
         private MongoCollection<Book> _bookCollection;
         private IBookRepository _repository;
         private Book _differentBook;
-
+        
         [SetUp]
         public void Setup()
         {
@@ -185,6 +185,27 @@ namespace Asaed.Poc.MongoDb.Data.Test.Repository
             Assert.AreEqual(_differentBook.Title, actual.Title);
             Assert.AreEqual(_differentBook.Publisher, actual.Publisher);
             Assert.AreEqual(_differentBook.Isbn, actual.Isbn);
+        }
+
+        [Test]
+        public void ShouldUpdateBookRetrievedFromRepository()
+        {
+            _repository.Add(_expectedBook);
+            var retrievedBook = _repository.FindByTitle(Title1).Single();
+
+            retrievedBook.Author = "New Author";
+            retrievedBook.Isbn = "NewIsn9887-88777";
+
+            _repository.Update(retrievedBook);
+
+            var modifiedBook = _repository.FindByTitle(Title1).Single();
+            Assert.AreNotSame(_expectedBook, modifiedBook);
+            Assert.AreNotSame(retrievedBook, modifiedBook);
+            Assert.AreEqual(retrievedBook.Id, modifiedBook.Id);
+            Assert.AreEqual("New Author", modifiedBook.Author);
+            Assert.AreEqual("NewIsn9887-88777", modifiedBook.Isbn);
+            Assert.AreEqual(Publisher, modifiedBook.Publisher);
+            Assert.AreEqual(Title1, modifiedBook.Title);
         }
     }
 }

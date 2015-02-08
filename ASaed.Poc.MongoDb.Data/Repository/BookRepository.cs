@@ -14,6 +14,7 @@ namespace ASaed.Poc.MongoDb.Data.Repository
         IEnumerable<Book> FindByTitle(string title);
         IEnumerable<Book> FindByAuthor(string author);
         void Delete(Book book);
+        void Update(Book book);
     }
 
     public class BookRepository : IBookRepository 
@@ -48,6 +49,11 @@ namespace ASaed.Poc.MongoDb.Data.Repository
             var mongoQuery = new QueryBuilder<Book>().EQ(x => x.Id, book.Id);
 
             _mongoCollection.Remove(mongoQuery);
+        }
+
+        public void Update(Book book)
+        {
+            _mongoCollection.Save(book);
         }
     }
 }
